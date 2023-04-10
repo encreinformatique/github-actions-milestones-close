@@ -22,7 +22,7 @@ type Issue struct {
 }
 
 func main() {
-	token := os.Getenv("INPUT_TOKEN")
+	token := os.Getenv("GITHUB_TOKEN")
 	if token == "" {
 		fmt.Println("Error: GitHub token not provided")
 		os.Exit(1)
