@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/kelseyhightower/envconfig"
 )
 
 type Milestone struct {
