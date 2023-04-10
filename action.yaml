@@ -8,9 +8,7 @@ inputs:
 
 runs:
   using: 'docker'
-  image: 'docker://golang:1.16.9-alpine3.13'
-  entrypoint: 'go'
-  run: 'close_milestones.go'
+  image: 'Dockerfile'
 
 branding:
   icon: 'check-circle'
