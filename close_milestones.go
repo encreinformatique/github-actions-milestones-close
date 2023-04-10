@@ -17,25 +17,29 @@ type Milestone struct {
 	CreatedAt string `json:"created_at"`
 }
 
+type config struct {
+	Token      string `envconfig:"GITHUB_TOKEN" required:"true"`
+	Owner      string `envconfig:"GITHUB_REPOSITORY_OWNER" required:"true"`
+	Repository string `envconfig:"GITHUB_REPOSITORY" required:"true"`
+}
+
 type Issue struct {
 	URL string `json:"url"`
 }
 
 func main() {
-	token      string `envconfig:"GITHUB_TOKEN" required:"true"`
-	if token == "" {
+	var c config
+	if c.Token == "" {
 		fmt.Println("Error: GitHub token not provided")
 		os.Exit(1)
 	}
 
-	owner      string `envconfig:"GITHUB_REPOSITORY_OWNER" required:"true"`
-	if owner == "" {
+	if c.Owner == "" {
 		fmt.Println("Error: GitHub repository owner not provided")
 		os.Exit(1)
 	}
 
-	repo      string `envconfig:"GITHUB_REPOSITORY" required:"true"`
-	if repo == "" {
+	if c.Repository == "" {
 		fmt.Println("Error: GitHub repository not provided")
 		os.Exit(1)
 	}
@@ -44,13 +48,13 @@ func main() {
 	now := time.Now()
 
 	// Get all open milestones
-	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/milestones?state=open", owner, repo)
+	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/milestones?state=open", c.Owner, c.Repository)
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		fmt.Printf("Error: %v", err)
 		os.Exit(1)
 	}
-	request.Header.Add("Authorization", fmt.Sprintf("token %s", token))
+	request.Header.Add("Authorization", fmt.Sprintf("token %s", c.Token))
 	client := &http.Client{}
 	response, err := client.Do(request)
 	if err != nil {
@@ -84,13 +88,13 @@ func main() {
 		}
 
 		// Check if the milestone has any open issues
-		url := fmt.Sprintf("https://api.github.com/repos/%s/%s/issues?state=open&milestone=%d", owner, repo, milestone.Number)
+		url := fmt.Sprintf("https://api.github.com/repos/%s/%s/issues?state=open&milestone=%d", c.Owner, c.Repository, milestone.Number)
 		request, err := http.NewRequest("GET", url, nil)
 		if err != nil {
 			fmt.Printf("Error: %v", err)
 			os.Exit(1)
 		}
-		request.Header.Add("Authorization", fmt.Sprintf("token %s", token))
+		request.Header.Add("Authorization", fmt.Sprintf("token %s", c.Token))
 		client := &http.Client{}
 		response, err := client.Do(request)
 		if err != nil {
