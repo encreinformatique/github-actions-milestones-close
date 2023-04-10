@@ -10,7 +10,7 @@ runs:
   using: 'docker'
   image: 'docker://golang:1.16.9-alpine3.13'
   entrypoint: 'go'
-  args: ['run', '/app/close_milestones.go']
+  args: ['run', './close_milestones.go']
 
 branding:
   icon: 'check-circle'
