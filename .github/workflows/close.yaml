@@ -1,0 +1,54 @@
+name: Close past-due milestones
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs every day at midnight UTC
+
+jobs:
+  close-milestones:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Close past-due milestones
+        run: |
+          TOKEN="${{ secrets.GITHUB_TOKEN }}"
+          OWNER="${{ github.repository_owner }}"
+          REPO="${{ github.repository }}"
+          DAYS_PAST_DUE=7 # Number of days past-due to close
+          
+          # Get all open milestones
+          MILESTONES=$(curl -s -H "Authorization: token $TOKEN" "https://api.github.com/repos/$OWNER/$REPO/milestones?state=open")
+          
+          # Loop through each milestone and check if it's past-due
+          for row in $(echo "${MILESTONES}" | jq -r '.[] | @base64'); do
+            _jq() {
+              echo ${row} | base64 --decode | jq -r ${1}
+            }
+            
+            TITLE=$(_jq '.title')
+            DUE_ON=$(_jq '.due_on')
+            URL=$(_jq '.url')
+            NUMBER=$(_jq '.number')
+            STATE=$(_jq '.state')
+            CREATED_AT=$(_jq '.created_at')
+            
+            if [[ "$STATE" == "open" && -n "$DUE_ON" ]]; then
+              CREATED_AT=$(date -d "$CREATED_AT" +%s)
+              DUE_ON=$(date -d "$DUE_ON" +%s)
+              DAYS_PAST=$(( ($(date +%s) - $DUE_ON) / 86400 ))
+              
+              if [[ $DAYS_PAST -ge $DAYS_PAST_DUE ]]; then
+                # Check if the milestone has any open issues
+                ISSUES=$(curl -s -H "Authorization: token $TOKEN" "https://api.github.com/repos/$OWNER/$REPO/issues?state=open&milestone=$NUMBER")
+                if [[ -z "$ISSUES" ]]; then
+                  # Close the milestone
+                  curl -s -X PATCH -H "Authorization: token $TOKEN" "$URL" -d "{\"state\":\"closed\"}"
+                  echo "Closed milestone: $TITLE"
+                else
+                  echo "Milestone: $TITLE still has open issues"
+                fi
+              fi
+            fi
+          done
