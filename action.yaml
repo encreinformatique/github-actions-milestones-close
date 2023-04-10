@@ -1,0 +1,22 @@
+name: Close past-due milestones
+description: Close GitHub milestones that are past-due and either empty or completed.
+
+inputs:
+  token:
+    description: 'The GitHub token to use for API authentication.'
+    required: true
+
+runs:
+  using: 'docker'
+  image: 'docker://golang:1.16.9-alpine3.13'
+  entrypoint: 'go'
+  args: ['run', '/app/close_milestones.go']
+
+branding:
+  icon: 'check-circle'
+  color: 'green'
+  name: 'Close Milestones'
+
+permissions:
+  issues: write
+  pull-requests: write
