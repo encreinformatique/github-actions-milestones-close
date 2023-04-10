@@ -107,4 +107,7 @@ func main() {
 		}
 
 		if len(issues) > 0 {
-			fmt.Printf("Milestone '%s' still has open issues\n",
+			fmt.Printf("Milestone '%s' still has open issues\n", milestone)
+		}
+	}
+}
