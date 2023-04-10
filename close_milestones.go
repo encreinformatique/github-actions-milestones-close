@@ -22,19 +22,19 @@ type Issue struct {
 }
 
 func main() {
-	token := os.Getenv("GITHUB_TOKEN")
+	token      string `envconfig:"GITHUB_TOKEN" required:"true"`
 	if token == "" {
 		fmt.Println("Error: GitHub token not provided")
 		os.Exit(1)
 	}
 
-	owner := os.Getenv("GITHUB_REPOSITORY_OWNER")
+	owner      string `envconfig:"GITHUB_REPOSITORY_OWNER" required:"true"`
 	if owner == "" {
 		fmt.Println("Error: GitHub repository owner not provided")
 		os.Exit(1)
 	}
 
-	repo := os.Getenv("GITHUB_REPOSITORY")
+	repo      string `envconfig:"GITHUB_REPOSITORY" required:"true"`
 	if repo == "" {
 		fmt.Println("Error: GitHub repository not provided")
 		os.Exit(1)
